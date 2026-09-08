@@ -1,0 +1,44 @@
+name: 카드뉴스 자동화
+
+on:
+  schedule:
+    - cron: "0 23 * * *"   # UTC 23:00 = KST 08:00
+  workflow_dispatch: {}     # GitHub 모바일 앱 Actions 탭에서 손가락으로 눌러서 수동 실행 가능
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 패키지 설치
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps chromium
+
+      - name: 파이프라인 실행 (KR/JP/US 통합)
+        run: python3 main.py
+        env:
+          GROQ_API_KEYS: ${{ secrets.GROQ_API_KEYS }}
+          GEMINI_API_KEYS: ${{ secrets.GEMINI_API_KEYS }}
+          HF_API_KEYS: ${{ secrets.HF_API_KEYS }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+
+      - name: 결과물을 GitHub Pages로 배포 (폰 브라우저로 바로 확인용)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: output
+
+      - name: Pages 배포
+        id: deployment
+        uses: actions/deploy-pages@v4
