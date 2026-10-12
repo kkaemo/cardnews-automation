@@ -1,7 +1,7 @@
 name: 카드뉴스 자동화
 
-on:
-  schedule:
+#on:
+ # schedule:
     - cron: "0 23 * * *"   # UTC 23:00 = KST 08:00
   workflow_dispatch: {}     # GitHub 모바일 앱 Actions 탭에서 손가락으로 눌러서 수동 실행 가능
 
